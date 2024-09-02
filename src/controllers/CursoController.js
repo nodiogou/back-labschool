@@ -22,5 +22,26 @@ module.exports = {
         }
 
         response.status(200).json(json)
+    },
+
+    //Metodo para cadastrar um curso 
+   saveCurso: async (request, response) => {
+        let json = { error: "", result: {} }
+
+        //receber dados via corpo da requisição para cadastrar o curso
+        let nome = request.body.nomeCurso
+
+        if (nome) {
+            let curso = await cursoService.createCurso(nome)
+
+            json.result = {
+                id: curso.insertId,
+                nome: nome
+            }
+        }else{
+            json.error = "Nome do curso é obrigatorio"
+        }
+
+        response.status(201).json(json)
     }
 }
