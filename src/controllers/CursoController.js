@@ -25,7 +25,7 @@ module.exports = {
     },
 
     //Metodo para cadastrar um curso 
-   saveCurso: async (request, response) => {
+    saveCurso: async (request, response) => {
         let json = { error: "", result: {} }
 
         //receber dados via corpo da requisição para cadastrar o curso
@@ -38,10 +38,67 @@ module.exports = {
                 id: curso.insertId,
                 nome: nome
             }
-        }else{
+        } else {
             json.error = "Nome do curso é obrigatorio"
         }
-
         response.status(201).json(json)
+    },
+
+    //metdo para atualizar um curso
+    updateCurso: async (request, response) => {
+        let json = { error: "", result: {} }
+
+        //capturar o id pelo parametro da URI 
+        let id = request.params.id
+
+        //capturar o nome e quantidade do curso via corpo da requisição 
+        let nome = request.body.nome
+        let quantidade = request.body.quantidade
+
+        if (id) {
+            //verificar se existe algum curso associado ao id
+            let cursoValid = await cursoService.findCursoById(id)
+
+            if (cursoValid.length == 0) {
+                json.error = "Curso não encontrado"
+                response.status(404).json(json)
+            } else {
+                await cursoService.updateCurso(id, nome, quantidade)
+                json.result = {
+                    id: id,
+                    nome: nome,
+                    quantidade: quantidade
+                }
+                response.status(200).json(json)
+            }
+        } else {
+            json.error = "Id do curso é obrigatorio"
+            response.status(400).json(json)
+        }
+    },
+
+    //metodo para deletar um curso
+    deleteCurso: async (request, response) => {
+        let json = { error: "", result: {} }
+
+        let id = request.params.id
+
+        if (id) {
+            let cursoValid = await cursoService.findCursoById(id)
+
+            if (cursoValid.lenght == 0) {
+                json.error = "Curso não encontrado"
+                response.status(404).json(json)
+            } else {
+                await cursoService.deleteCurso(id)
+
+                json.result = `Curso ${cursoValid[0].nome} excluido com sucesso`
+
+                response.status(200).json(json)
+            }
+        } else {
+            json.error = "id do curso é obrigatorio"
+            response.status(400).json(json)
+        }
     }
 }
