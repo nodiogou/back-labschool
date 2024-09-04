@@ -59,7 +59,7 @@ module.exports = {
             //verificar se existe algum curso associado ao id
             let cursoValid = await cursoService.findCursoById(id)
 
-            if (cursoValid.length == 0) {
+            if (cursoValid.lenght == 0) {
                 json.error = "Curso não encontrado"
                 response.status(404).json(json)
             } else {
