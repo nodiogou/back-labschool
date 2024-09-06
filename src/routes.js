@@ -18,6 +18,6 @@ route.get('/aluno', alunoController.findAllAlunos) //ready
 route.get('/aluno/:id', alunoController.findAlunoById) //ready
 route.delete('/aluno/:id', alunoController.deleteAluno) //delete
 route.post('/aluno', upload.single('image'), alunoController.saveAluno) //save
-//route.put('/aluno/:id', alunoController.updateAluno) //update
+route.put('/aluno/:id', upload.single('image'), alunoController.updateAluno) //update
 
 module.exports = route

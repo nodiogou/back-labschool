@@ -33,7 +33,7 @@ module.exports = {
 
         if (id) {
             let alunoValid = await alunoService.GetAlunoByID(id)
-    
+
             if (alunoValid.length == 0) {
                 json.error = "Aluno não encontrado"
                 response.status(404).json(json)
@@ -53,32 +53,29 @@ module.exports = {
     //metodo consultar apenas um aluno
     findAlunoById: async (request, response) => {
         let json = { error: "", result: {} };
-    
+
         let id = request.params.id;
-    
+
         if (id) {
-            try {
-                //verificar se existe algum aluno associado ao id
-                let alunoValid = await alunoService.GetAlunoByID(id);
-    
-                if (alunoValid.length === 0) {
-                    json.error = "Aluno não encontrado";
-                    response.status(404).json(json);
-                } else {
-                    //supondo que alunoValid[0] contém o aluno encontrado
-                    const aluno = alunoValid[0];
-                    json.result = {
-                        id: aluno.id,
-                        nome: aluno.nome,
-                        telefone: aluno.telefone,
-                        email: aluno.email,
-                    };
-                    response.status(200).json(json);
-                }
-            } catch (error) {
-                json.error = `Erro ao buscar aluno: ${error.message}`;
-                response.status(500).json(json);
+
+            //verificar se existe algum aluno associado ao id
+            let alunoValid = await alunoService.GetAlunoByID(id);
+
+            if (alunoValid.length === 0) {
+                json.error = "Aluno não encontrado";
+                response.status(404).json(json);
+            } else {
+                //supondo que alunoValid[0] contém o aluno encontrado
+                const aluno = alunoValid[0];
+                json.result = {
+                    id: aluno.id,
+                    nome: aluno.nome,
+                    telefone: aluno.telefone,
+                    email: aluno.email,
+                };
+                response.status(200).json(json);
             }
+
         } else {
             json.error = "Id do Aluno é obrigatório";
             response.status(400).json(json);
@@ -88,22 +85,63 @@ module.exports = {
     //metodo para salvar um novo aluno
     saveAluno: async (request, response) => {
         let json = { error: "", result: "" }
-    
-        let foto = request.file.buffer;  // O buffer da imagem
+
+        let foto = request.file.buffer;  //o buffer da imagem
         let nome = request.body.nome;
         let telefone = request.body.telefone;
         let data_nascimento = request.body.data_nascimento;
         let email = request.body.email;
         let fk_id_curso = request.body.fk_id_curso;
-        
+
         try {
             let aluno = await alunoService.createAluno(foto, nome, telefone, email, data_nascimento, fk_id_curso);
-    
+
             json.result = `Aluno: ${nome} cadastrado com sucesso ID: ${aluno.insertId}`;
             response.status(201).json(json);
         } catch (err) {
             json.error = `Erro ao cadastrar aluno: ${err.message}`;
             response.status(500).json(json);
         }
+    },
+
+    //metodo para atualizar o aluno
+    updateAluno: async (request, response) => {
+        let json = { error: "", result: "" }
+
+        let id = request.params.id
+
+        let foto = request.file.buffer;  //o buffer da imagem
+        let nome = request.body.nome;
+        let telefone = request.body.telefone;
+        let data_nascimento = request.body.data_nascimento;
+        let email = request.body.email;
+
+        if (id) {
+
+            //verificar se existe algum aluno associado ao id
+            let alunoValid = await alunoService.GetAlunoByID(id);
+
+            if (alunoValid.length === 0) {
+                json.error = "Aluno não encontrado";
+                response.status(404).json(json);
+            } else {
+                if (nome != "" && telefone != "" && data_nascimento != "" && email != "") {
+
+                    await alunoService.updateAluno(id, foto, nome, telefone, email, data_nascimento)
+
+                    json.result = `Aluno: ${nome} atualizado com sucesso! ID {${id}}`
+                    response.status(200).json(json)
+
+                } else {
+                    json.error = `Error: Campos obrigatorios não preenchidos`
+                    response.status(400).json(json)
+                }
+            }
+
+        } else {
+            json.error = "Id do Aluno é obrigatório";
+            response.status(400).json(json);
+        }
+
     }
 }
